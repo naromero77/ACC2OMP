@@ -3,14 +3,6 @@
 # e-mail: naromer@anl.gov
 # Argonne National Laboratory
 
-# Known limitations:
-# - OpenACC -> OpenMP directive mapping must be explicitly available in a dictionary
-# - OpenACC async is not handled properly because of fundamental differences between OpenACC and OpenMP
-# - Only handles Fortran
-# - Search string tokens are case dependent
-# - Hard coded to a specific file name at the moment
-
-
 # Lists, dicts, and strings to aid in translation of OpenACC to OpenMP
 # Note that the other way would be more difficult since OpenMP tends to
 # be more verbose than OpenACC.
