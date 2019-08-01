@@ -14,7 +14,6 @@ Please note that is very much a work-in-progress (WIP) and has several known lim
 - OpenACC async is not handled properly because of fundamental differences between OpenACC and OpenMP
 - Only handles Fortran
 - Search string tokens are case dependent
-- Lack of proper handling of line indentation
 - No unit tests
 - No enforcement of PEP8 formating on source code
 

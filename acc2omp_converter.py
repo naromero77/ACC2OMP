@@ -20,7 +20,6 @@ ompDirContinue = '!$omp&'
 accDirContinue = '!$acc&'
 
 singleSpaceString = ' '
-doubleSpaceString = '  '
 transitionArrow = ' -> '
 backupExtString = '.bak'
 
@@ -89,7 +88,12 @@ if __name__ == "__main__":
 
         # As long as the line is not empty (case #1), it can be
         # parsed. We need an iterable object and enumerate object
-        # to aid in search for directives
+        # to aid in search for directives. We keep track of the
+        # length of the line as well as its left justification,
+        # but only use this when we are actually translating
+        # directives (case #4)
+        lenLine = len(line)
+        numLeftSpaces = lenLine - len(line.lstrip(singleSpaceString))
         dirs = line.split()
         lenDirs = len(dirs)
         enumDirs = enumerate(dirs)
@@ -151,9 +155,11 @@ if __name__ == "__main__":
             # first iteration just put the OMP directive or continuation
             # version of it into a string and go to the next iteration
             if i == 0:
-                if accDirFound: newLine = doubleSpaceString + ompDir
+                if accDirFound:
+                    newLine = singleSpaceString * numLeftSpaces + ompDir
                 if accDirContinueFound:
-                    newLine = doubleSpaceString + ompDirContinue
+                    newLine = singleSpaceString * numLeftSpaces
+                    + ompDirContinue
                 continue
 
             # second iteration store the first pragma in the pair
