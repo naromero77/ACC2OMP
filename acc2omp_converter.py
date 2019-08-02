@@ -105,11 +105,15 @@ if __name__ == "__main__":
             continue
 
         # Third case is a line that contains no directive
-        # Use Booleans to keep track of OpenACC directives founds
-        # we assume they have NOT been found
+        # Use Booleans to keep track of when an OpenACC directive
+        # has been found, by default we assume there is no
+        # ACC directive present. Also allow for the possibility
+        # that uppercase is used for the OpenACC directive, though
+        # most people will use lowercase.
         accDirFound = False
         accDirContinueFound = False
-        if ((dirs[0] != accDir) and (dirs[0] != accDirContinue)):
+        if ((dirs[0].lower() != accDir) and
+                (dirs[0].lower() != accDirContinue)):
             if debug:
                     print 'No OpenACC directive on this line'
             entries.append(line)
@@ -121,11 +125,24 @@ if __name__ == "__main__":
         # We will either find an OpenACC directive or a continuation
         # of an OpenACC directive. Check for both, but only one
         # must be found.
-        if dirs[0] == accDir: accDirFound = True
-        if dirs[0] == accDirContinue: accDirContinueFound = True
+        if dirs[0].lower() == accDir: accDirFound = True
+        if dirs[0].lower() == accDirContinue: accDirContinueFound = True
+
+        # Detect whether they are using upper or lower case for the OpenACC
+        # directive. Depending on the capitalization of the first instance
+        # of an OpenACC pragma on that line will determine the
+        # capitalization of the rest of the line. Mixed capitalization will
+        # throw off this detection.
+        accDirUpperCase = dirs[0].isupper()
+        accDirLowerCase = dirs[0].islower()
+
+        if debug:
+            print "accDirUpperCase = ", accDirUpperCase
+            print "accDirLowerCase = ", accDirLowerCase
 
         # Booleans cannot be both True or both False
         assert (accDirFound != accDirContinueFound)
+        assert (accDirUpperCase != accDirLowerCase)
 
         if debug:
             print 'OpenACC directive present. Translating.'
@@ -151,14 +168,25 @@ if __name__ == "__main__":
         dualDirwargsFound = False
         dirwargsFound = False
         for i, dir in enumDirs:
+            # Convert directive to lowercase for pattern matching purpose,
+            # later on the output line will be written out in the native
+            # capitalization of the source code (determined on a per line
+            # basis)
+            dir = dir.lower()
             # first iteration just put the OMP directive or continuation
             # version of it into a string and go to the next iteration
             if i == 0:
+                newLine = singleSpaceString * numLeftSpaces
+                if accDirUpperCase:
+                    ompDir = ompDir.upper()
+                    ompDirContinue = ompDirContinue.upper()
+                else: #  accDirLowerCase is True
+                    ompDir = ompDir.lower()
+                    ompDirContinue = ompDirContinue.lower()
                 if accDirFound:
-                    newLine = singleSpaceString * numLeftSpaces + ompDir
-                if accDirContinueFound:
-                    newLine = singleSpaceString * numLeftSpaces
-                    + ompDirContinue
+                    newLine = newLine + ompDir
+                else: #  accDirContinueFound is True
+                    newLine = newLine + ompDirContinue
                 continue
 
             # second iteration store the first pragma in the pair
@@ -225,6 +253,7 @@ if __name__ == "__main__":
                 if debug:
                     print 'OpenACC Directive Single with no argument found'
                 newDir = singleDirDict[currentDir]
+                if accDirUpperCase: newDir = newDir.upper()
                 if debug: print currentDir + transitionArrow + newDir
                 newLine = newLine + singleSpaceString + newDir
 
@@ -232,6 +261,7 @@ if __name__ == "__main__":
             if (lenDirwargs > 1) and singleDirwargsFound:
                 if debug: print 'OpenACC Directive Single with argument found'
                 newDir = singleDirwargsDict[currentDir]
+                if accDirUpperCase: newDir = newDir.upper()
                 newLine = newLine + singleSpaceString + newDir
                 # for-loop handles the arguement component
                 for j in range(1, lenDirwargs):
@@ -244,6 +274,7 @@ if __name__ == "__main__":
                 if debug:
                     print 'OpenACC Directive Dual with no arguement found'
                 newDir = dualDirDict[dualDir]
+                if accDirUpperCase: newDir = newDir.upper()
                 if debug:
                     print dualDir + transitionArrow + newDir
                 newLine = newLine + singleSpaceString + newDir
@@ -252,6 +283,7 @@ if __name__ == "__main__":
             if (lenDirwargs > 1) and dualDirwargsFound:
                 if debug: print 'OpenACC Directive Dual with an argument'
                 newDir = dualDirwargsDict[dualDir]
+                if accDirUpperCase: newDir = newDir.upper()
                 newLine = newLine + singleSpaceString + newDir
                 # for-loop handles the arguement component
                 for j in range(1, lenDirwargs):
