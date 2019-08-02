@@ -9,11 +9,18 @@ and OpenMP directives with some exceptions.
 
 Please note that is very much a work-in-progress (WIP) and has several known limitations documented below:
 
+# Usage
+On the command line, type:
+``./acc2omp_converter.py filename.F90``
+
+The original file will be backed up to ``filename.F90.bak``
+
+A number of diagnostic output is written to the standard out. It can be surpressed by setting the `debug = 0`. 
+
 # Known limitations
 - OpenACC -> OpenMP directive mapping must be explicitly available in a dictionary
 - OpenACC async is not handled properly because of fundamental differences between OpenACC and OpenMP
 - Only handles Fortran
-- Search string tokens are case dependent
 - No unit tests
 - No enforcement of PEP8 formating on source code
 
