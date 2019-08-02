@@ -233,6 +233,7 @@ if __name__ == "__main__":
                 if debug: print 'OpenACC Directive Single with argument found'
                 newDir = singleDirwargsDict[currentDir]
                 newLine = newLine + singleSpaceString + newDir
+                # for-loop handles the arguement component
                 for j in range(1, lenDirwargs):
                     newDir = dirwargs[j]
                     if debug: print currentDir + transitionArrow + newDir
@@ -252,6 +253,7 @@ if __name__ == "__main__":
                 if debug: print 'OpenACC Directive Dual with an argument'
                 newDir = dualDirwargsDict[dualDir]
                 newLine = newLine + singleSpaceString + newDir
+                # for-loop handles the arguement component
                 for j in range(1, lenDirwargs):
                     newDir = dirwargs[j]
                     if debug: print dualDir + transitionArrow + newDir
