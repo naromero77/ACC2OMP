@@ -10,7 +10,6 @@
 # In the variable names in the program, Dir stands for directive
 # not directory.
 
-import sys
 import fileinput
 from shutil import copyfile
 
