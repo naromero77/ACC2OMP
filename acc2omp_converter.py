@@ -28,7 +28,7 @@ singleDirDict = {
     'gang': '',
     'parallel': 'target teams distribute',
     'vector': 'simd',
-    'routine': 'declate target',
+    'routine': 'declare target',
     'seq': '',
     'data': 'data',
     'enter': 'target enter',
