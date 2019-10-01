@@ -207,7 +207,7 @@ if __name__ == "__main__":
             dirwargs = dir.split('(', 1)
             lenDirwargs = len(dirwargs)
             currentDir = dirwargs[0]
-            dualDir = prevdir + ' ' + currentDir
+            dualDir = prevdir + singleSpaceString + currentDir
 
             if lenDirwargs > 1: dirwargsFound = True  # Boolean unused for now
             if debug:
@@ -267,7 +267,7 @@ if __name__ == "__main__":
                 for j in range(1, lenDirwargs):
                     newDir = dirwargs[j]
                     if debug: print currentDir + transitionArrow + newDir
-                    newLine = newLine + singleSpaceString + newDir
+                    newLine = newLine + newDir
 
             # (pair) directive with no arguement
             if dualDirFound:
@@ -289,7 +289,7 @@ if __name__ == "__main__":
                 for j in range(1, lenDirwargs):
                     newDir = dirwargs[j]
                     if debug: print dualDir + transitionArrow + newDir
-                    newLine = newLine + singleSpaceString + newDir
+                    newLine = newLine + newDir
 
             # reset booleans for next iteration
             singleDirFound = False
