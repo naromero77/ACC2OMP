@@ -18,6 +18,7 @@ ompDir = '!$omp'
 accDir = '!$acc'
 ompDirContinue = '!$omp&'
 accDirContinue = '!$acc&'
+nextLineContinue = '&'
 
 singleSpaceString = ' '
 transitionArrow = ' -> '
@@ -219,6 +220,10 @@ if __name__ == "__main__":
             # second iteration store the first pragma in the pair
             if i == 1:
                 prevdir = dir
+
+            # Special detection needed for line continuation
+            if dir == nextLineContinue:
+                newLine = newLine + singleSpaceString + nextLineContinue
 
             # take adjacent directives and create new key
             # store previous two directives for next iteration
