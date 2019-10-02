@@ -11,6 +11,7 @@
 # not directory.
 
 import fileinput
+import re
 from shutil import copyfile
 
 ompDir = '!$omp'
@@ -61,6 +62,28 @@ dualDirwargsDict = {
 # Set to 1 for debugging and development purposes
 debug = 1
 
+
+def remove_extra_spaces(origString):
+    """
+    Converter needs extra spaces before and after commas and parenthesis
+    removed in order work properly.
+    """
+    # Space before and after a comma
+    newString = re.sub(' *, *', ',', origString)
+
+    # Space before and after left parenthesis
+    newString = re.sub(' *\( *', '(', newString)
+
+    # Space before and after right parenthesis
+    newString = re.sub(' *\) *', ')', newString)
+
+    # Add space back in for continuation symbol
+    newString = re.sub('\)&', ') &', newString)
+
+    # return newString
+    return newString
+
+
 if __name__ == "__main__":
     # This list will contain the output buffer in a line-by-line breakup
     entries = []
@@ -69,7 +92,11 @@ if __name__ == "__main__":
     lines = fileinput.input()
 
     for line in lines:
+        # Remove extra spaces
+        newLine = remove_extra_spaces(line)
+        line = newLine
         if debug:
+            print "extra spaces extracted below:"
             print line
 
         # Four cases to consider when parsing a line:
