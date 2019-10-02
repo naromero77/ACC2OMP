@@ -208,12 +208,12 @@ if __name__ == "__main__":
                 if accDirUpperCase:
                     ompDir = ompDir.upper()
                     ompDirContinue = ompDirContinue.upper()
-                else: #  accDirLowerCase is True
+                else:  # accDirLowerCase is True
                     ompDir = ompDir.lower()
                     ompDirContinue = ompDirContinue.lower()
                 if accDirFound:
                     newLine = newLine + ompDir
-                else: #  accDirContinueFound is True
+                else:  # accDirContinueFound is True
                     newLine = newLine + ompDirContinue
                 continue
 
