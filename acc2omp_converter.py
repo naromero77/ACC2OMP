@@ -11,12 +11,14 @@
 # not directory.
 
 import fileinput
+import re
 from shutil import copyfile
 
 ompDir = '!$omp'
 accDir = '!$acc'
 ompDirContinue = '!$omp&'
 accDirContinue = '!$acc&'
+nextLineContinue = '&'
 
 singleSpaceString = ' '
 transitionArrow = ' -> '
@@ -61,6 +63,28 @@ dualDirwargsDict = {
 # Set to 1 for debugging and development purposes
 debug = 1
 
+
+def remove_extra_spaces(origString):
+    """
+    Converter needs extra spaces before and after commas and parenthesis
+    removed in order work properly.
+    """
+    # Space before and after a comma
+    newString = re.sub(' *, *', ',', origString)
+
+    # Space before and after left parenthesis
+    newString = re.sub(' *\( *', '(', newString)
+
+    # Space before and after right parenthesis
+    newString = re.sub(' *\) *', ')', newString)
+
+    # Add space back in for continuation symbol
+    newString = re.sub('\)&', ') &', newString)
+
+    # return newString
+    return newString
+
+
 if __name__ == "__main__":
     # This list will contain the output buffer in a line-by-line breakup
     entries = []
@@ -69,7 +93,11 @@ if __name__ == "__main__":
     lines = fileinput.input()
 
     for line in lines:
+        # Remove extra spaces
+        newLine = remove_extra_spaces(line)
+        line = newLine
         if debug:
+            print "extra spaces extracted below:"
             print line
 
         # Four cases to consider when parsing a line:
@@ -180,18 +208,22 @@ if __name__ == "__main__":
                 if accDirUpperCase:
                     ompDir = ompDir.upper()
                     ompDirContinue = ompDirContinue.upper()
-                else: #  accDirLowerCase is True
+                else:  # accDirLowerCase is True
                     ompDir = ompDir.lower()
                     ompDirContinue = ompDirContinue.lower()
                 if accDirFound:
                     newLine = newLine + ompDir
-                else: #  accDirContinueFound is True
+                else:  # accDirContinueFound is True
                     newLine = newLine + ompDirContinue
                 continue
 
             # second iteration store the first pragma in the pair
             if i == 1:
                 prevdir = dir
+
+            # Special detection needed for line continuation
+            if dir == nextLineContinue:
+                newLine = newLine + singleSpaceString + nextLineContinue
 
             # take adjacent directives and create new key
             # store previous two directives for next iteration
