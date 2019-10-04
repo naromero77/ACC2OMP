@@ -24,7 +24,7 @@ A number of diagnostic output is written to the standard out. It can be surpress
 - Only handles Fortran
 - No unit tests
 - No enforcement of PEP8 formating on source code via CI
-- Formatting for comma seperated arguements will not match source code input. Presently it is hard-coded to minimize spaces. For example, `omp array(x, y)` gets translated to `omp array(x,y)`.
+- Formatting for comma seperated arguements will not match source code input. Presently it is hard-coded to minimize spaces after the translation. For example, `!$acc enter data copyin(array(x, y))` gets translated to `!$omp target enter data map(to:array(x,y))`.
 
 # Funding
 This research was supported by the Exascale Computing Project (17-SC-20-SC), a joint project of the U.S. Department of Energy’s
