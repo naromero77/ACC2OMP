@@ -81,6 +81,11 @@ def remove_extra_spaces(origString):
     # Add space back in for continuation symbol
     newString = re.sub('\)&', ') &', newString)
 
+    # Add space back when newString is adjacent to another variable or
+    # directive
+    # \w means any single letter, digit or underscore
+    newString = re.sub('(\))(\w)', r'\1 \2', newString)
+
     # return newString
     return newString
 
@@ -93,9 +98,12 @@ if __name__ == "__main__":
     lines = fileinput.input()
 
     for line in lines:
-        # Remove extra spaces
-        newLine = remove_extra_spaces(line)
-        line = newLine
+        # Remove extraneous spaces, but we only use
+        # parsedLine for lines that actually contain directives
+        origLine = line
+        parsedLine = remove_extra_spaces(line)
+        line = parsedLine
+
         if debug:
             print "extra spaces extracted below:"
             print line
@@ -110,7 +118,7 @@ if __name__ == "__main__":
         if len(line) == 0:
             if debug:
                 print 'Carriage return only'
-            entries.append(line)
+            entries.append(origLine)
             continue
 
         # As long as the line is not empty (case #1), it can be
@@ -129,7 +137,7 @@ if __name__ == "__main__":
         if lenDirs == 0:
             if debug:
                 print 'Blank line'
-            entries.append(line)
+            entries.append(origLine)
             continue
 
         # Third case is a line that contains no directive
@@ -144,7 +152,7 @@ if __name__ == "__main__":
                 (dirs[0].lower() != accDirContinue)):
             if debug:
                     print 'No OpenACC directive on this line'
-            entries.append(line)
+            entries.append(origLine)
             continue
 
         # Fourth case contains some OpenACC directive
