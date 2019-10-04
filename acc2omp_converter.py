@@ -33,6 +33,7 @@ singleDirDict = {
     'routine': 'declare target',
     'seq': '',
     'data': 'data',
+    'end' : 'end',
     'enter': 'target enter',
     'exit': 'target exit',
 }
