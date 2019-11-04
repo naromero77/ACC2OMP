@@ -28,6 +28,7 @@ backupExtString = '.bak'
 singleDirDict = {
     'loop': 'parallel do',
     'gang': '',
+    'kernels' : 'target teams distribute',
     'parallel': 'target teams distribute',
     'vector': 'simd',
     'routine': 'declare target',
@@ -44,6 +45,8 @@ dualDirDict = {
 
 # with arguements
 singleDirwargsDict = {
+    'attach' : 'map(to:',
+    'detach' : 'map(from:',
     'copy': 'map(tofrom:',
     'copyin': 'map(to:',
     'copyout': 'map(from:',
