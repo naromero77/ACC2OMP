@@ -45,6 +45,8 @@ dualDirDict = {
 
 # with arguements
 singleDirwargsDict = {
+    'attach' : 'map(to:',
+    'detach' : 'map(from:',
     'copy': 'map(tofrom:',
     'copyin': 'map(to:',
     'copyout': 'map(from:',
