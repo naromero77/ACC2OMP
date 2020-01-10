@@ -238,6 +238,7 @@ if __name__ == "__main__":
 
             # Special detection needed for line continuation
             if dir == nextLineContinue:
+                totalDirsFound = totalDirsFound - 1
                 newLine = newLine + singleSpaceString + nextLineContinue
 
             # Additional logic would be necessary if examining
@@ -299,6 +300,7 @@ if __name__ == "__main__":
 
             # (single) directive with no arguements
             if singleDirFound:
+                totalDirsFound = totalDirsFound + 1
                 if debug:
                     print 'OpenACC Directive Single with no argument found'
                 newDir = singleDirDict[currentDir]
@@ -308,6 +310,7 @@ if __name__ == "__main__":
 
             # (single) directive with an arguement
             if (lenDirwargs > 1) and singleDirwargsFound:
+                totalDirsFound = totalDirsFound + 1
                 if debug: print 'OpenACC Directive Single with argument found'
                 newDir = singleDirwargsDict[currentDir]
                 if accDirUpperCase: newDir = newDir.upper()
@@ -320,6 +323,7 @@ if __name__ == "__main__":
 
             # (pair) directive with no arguement
             if dualDirFound:
+                totalDirsFound = totalDirsFound + 2
                 if debug:
                     print 'OpenACC Directive Dual with no arguement found'
                 newDir = dualDirDict[dualDir]
@@ -330,6 +334,7 @@ if __name__ == "__main__":
 
             # (pair) directive with an arguement
             if (lenDirwargs > 1) and dualDirwargsFound:
+                totalDirsFound = totalDirsFound + 2
                 if debug: print 'OpenACC Directive Dual with an argument'
                 newDir = dualDirwargsDict[dualDir]
                 if accDirUpperCase: newDir = newDir.upper()
@@ -347,8 +352,21 @@ if __name__ == "__main__":
             dualDirwargsFound = False
             dirwargsFound = False
 
+            # End of inner loop on `i`
+
+        # On last Loop iteration, check that you were able to translate
+        # all directives. If you can't translate a directive, keep
+        # line AS IS and output original line containing OpenACC
+        if (totalDirsFound < (lenDirs - 1)):
+            if debug:
+                print 'lenDirs=', lenDirs
+                print 'totalDirsFound=', totalDirsFound
+                print 'OpenACC directive could not be translated.'
+            newLine = origLine
+        else:
+            newLine = newLine + '\n'
+
         # Finally we add the new line into the buffer
-        newLine = newLine + '\n'
         entries.append(newLine)
 
         # End of outer loop on `line`
