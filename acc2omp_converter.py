@@ -33,7 +33,7 @@ singleDirDict = {
     'routine': 'declare target',
     'seq': '',
     'data': 'data',
-    'end' : 'end',
+    'end': 'end',
     'enter': 'target enter',
     'exit': 'target exit',
 }
@@ -44,8 +44,8 @@ dualDirDict = {
 
 # with arguements
 singleDirwargsDict = {
-    'attach' : 'map(to:',
-    'detach' : 'map(from:',
+    'attach': 'map(to:',
+    'detach': 'map(from:',
     'copy': 'map(tofrom:',
     'copyin': 'map(to:',
     'copyout': 'map(from:',
