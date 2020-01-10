@@ -199,8 +199,12 @@ if __name__ == "__main__":
         # directives but we do pairs first because there is overlap between
         # keywords among the different directive categories.
 
-        # Booleans to keep track of what directive type has been found:
+        # Counters which are only reset at each iteration of outer loop
         dualDir = None
+        totalDirsFound = 0
+
+        # Booleans to keep track of what directive type has been found
+        # Need to be reset at each iteration of inner loop
         singleDirFound = False
         singleDirwargsFound = False
         dualDirFound = False
@@ -236,11 +240,13 @@ if __name__ == "__main__":
             if dir == nextLineContinue:
                 newLine = newLine + singleSpaceString + nextLineContinue
 
+            # Additional logic would be necessary if examining
+            # triplets of directives
             # take adjacent directives and create new key
             # store previous two directives for next iteration
             # if i > 1:
-            #     dualDir = prevdir + ' ' + dir
-            #     prevprevdir = prevdir
+            #     dualDir = prevdir + singleSpaceString + currentDir
+            #     prevdrevdir = prevdir
             #    prevdir = dir
 
             # Some directives will have arguements, so we need to identify
@@ -344,6 +350,8 @@ if __name__ == "__main__":
         # Finally we add the new line into the buffer
         newLine = newLine + '\n'
         entries.append(newLine)
+
+        # End of outer loop on `line`
 
     # We intentionally wait until the entire file is read because
     # fileinput module will return None only after the entire file
