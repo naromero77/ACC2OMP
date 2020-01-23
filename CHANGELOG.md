@@ -2,6 +2,12 @@
 
 Notable changes to ACC2OMP are documented in this file
 
+## [0.2.1] - 2020-1-23
+
+Minor enhancements:
+- Original OpenACC directives can be maintained in output.
+- Prettify formatting when commas are present.
+
 ## [0.2] - 2020-01-10
 
 Production Release
