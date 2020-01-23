@@ -97,6 +97,17 @@ def remove_extra_spaces(origString):
     return newString
 
 
+def add_space_after_commas(origString):
+    """
+    Directives with arguements need spaces insert after commas.
+    """
+    # space after a comma
+    newString = re.sub(',', ', ', origString)
+
+    # return newString
+    return newString
+
+
 if __name__ == "__main__":
     # This list will contain the output buffer in a line-by-line breakup
     entries = []
@@ -368,7 +379,7 @@ if __name__ == "__main__":
                 print 'OpenACC directive could not be translated.'
             newLine = origLine
         else:
-            newLine = newLine + '\n'
+            newLine = add_space_after_commas(newLine) + '\n'
 
         # Finally we add the new line into the buffer
         entries.append(newLine)
