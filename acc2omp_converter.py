@@ -7,6 +7,13 @@
 import fileinput
 import re
 from shutil import copyfile
+
+# Most common user configurable parameters
+# Set to True for debugging and development purposes
+debug = True
+# Set to True to retain OpenACC directives in output
+keepOpenACC = True
+
 # Lists, dicts, and strings to aid in translation of OpenACC to OpenMP
 # Note that the other way would be more difficult since OpenMP tends to
 # be more verbose than OpenACC.
@@ -62,9 +69,6 @@ singleDirwargsDict = {
 dualDirwargsDict = {
     'update device': 'target update(',
 }
-
-# Set to 1 for debugging and development purposes
-debug = 1
 
 
 def remove_extra_spaces(origString):
