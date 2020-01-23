@@ -31,7 +31,7 @@ singleSpaceString = ' '
 transitionArrow = ' -> '
 backupExtString = '.bak'
 
-# no arguements
+# directives without arguements
 singleDirDict = {
     'loop': 'parallel do',
     'gang': '',
@@ -49,7 +49,7 @@ dualDirDict = {
     'atomic update': 'atomic update',
 }
 
-# with arguements
+# directives with arguements
 singleDirwargsDict = {
     'attach': 'map(to:',
     'detach': 'map(from:',
