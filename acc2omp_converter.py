@@ -3,16 +3,16 @@
 # e-mail: naromer@anl.gov
 # Argonne National Laboratory
 
+# Python imports
+import fileinput
+import re
+from shutil import copyfile
 # Lists, dicts, and strings to aid in translation of OpenACC to OpenMP
 # Note that the other way would be more difficult since OpenMP tends to
 # be more verbose than OpenACC.
 
 # In the variable names in the program, Dir stands for directive
 # not directory.
-
-import fileinput
-import re
-from shutil import copyfile
 
 ompDir = '!$omp'
 accDir = '!$acc'
