@@ -3,16 +3,23 @@
 # e-mail: naromer@anl.gov
 # Argonne National Laboratory
 
+# Python imports
+import fileinput
+import re
+from shutil import copyfile
+
+# Most common user configurable parameters
+# Set to True for debugging and development purposes
+debug = True
+# Set to True to retain OpenACC directives in output
+keepOpenACC = True
+
 # Lists, dicts, and strings to aid in translation of OpenACC to OpenMP
 # Note that the other way would be more difficult since OpenMP tends to
 # be more verbose than OpenACC.
 
 # In the variable names in the program, Dir stands for directive
 # not directory.
-
-import fileinput
-import re
-from shutil import copyfile
 
 ompDir = '!$omp'
 accDir = '!$acc'
@@ -24,7 +31,7 @@ singleSpaceString = ' '
 transitionArrow = ' -> '
 backupExtString = '.bak'
 
-# no arguements
+# directives without arguements
 singleDirDict = {
     'loop': 'parallel do',
     'gang': '',
@@ -42,7 +49,7 @@ dualDirDict = {
     'atomic update': 'atomic update',
 }
 
-# with arguements
+# directives with arguements
 singleDirwargsDict = {
     'attach': 'map(to:',
     'detach': 'map(from:',
@@ -62,9 +69,6 @@ singleDirwargsDict = {
 dualDirwargsDict = {
     'update device': 'target update(',
 }
-
-# Set to 1 for debugging and development purposes
-debug = 1
 
 
 def remove_extra_spaces(origString):
@@ -88,6 +92,17 @@ def remove_extra_spaces(origString):
     # directive
     # \w means any single letter, digit or underscore
     newString = re.sub('(\))(\w)', r'\1 \2', newString)
+
+    # return newString
+    return newString
+
+
+def add_space_after_commas(origString):
+    """
+    Directives with arguements need spaces insert after commas.
+    """
+    # space after a comma
+    newString = re.sub(',', ', ', origString)
 
     # return newString
     return newString
@@ -364,7 +379,7 @@ if __name__ == "__main__":
                 print 'OpenACC directive could not be translated.'
             newLine = origLine
         else:
-            newLine = newLine + '\n'
+            newLine = add_space_after_commas(newLine) + '\n'
 
         # Finally we add the new line into the buffer
         entries.append(newLine)
