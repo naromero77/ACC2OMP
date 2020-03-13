@@ -27,6 +27,7 @@ ompDirContinue = '!$omp&'
 accDirContinue = '!$acc&'
 nextLineContinue = '&'
 
+emptyString = ''
 singleSpaceString = ' '
 transitionArrow = ' -> '
 backupExtString = '.bak'
@@ -34,11 +35,11 @@ backupExtString = '.bak'
 # directives without arguements
 singleDirDict = {
     'loop': 'parallel do',
-    'gang': '',
+    'gang': emptyString,
     'parallel': 'target teams distribute',
     'vector': 'simd',
     'routine': 'declare target',
-    'seq': '',
+    'seq': emptyString,
     'data': 'data',
     'end': 'end',
     'enter': 'target enter',
@@ -63,7 +64,8 @@ singleDirwargsDict = {
     'collapse': 'collapse(',
     'private': 'private(',
     'vector_length': 'simd simdlen(',
-    'num_gangs': 'num_teams('
+    'num_gangs': 'num_teams(',
+    'present': emptyString,
 }
 
 dualDirwargsDict = {
@@ -319,6 +321,7 @@ if __name__ == "__main__":
                 if debug:
                     print 'OpenACC Directive Single with no argument found'
                 newDir = singleDirDict[currentDir]
+                if newDir == emptyString: continue
                 if accDirUpperCase: newDir = newDir.upper()
                 if debug: print currentDir + transitionArrow + newDir
                 newLine = newLine + singleSpaceString + newDir
@@ -328,6 +331,7 @@ if __name__ == "__main__":
                 totalDirsFound = totalDirsFound + 1
                 if debug: print 'OpenACC Directive Single with argument found'
                 newDir = singleDirwargsDict[currentDir]
+                if newDir == emptyString: continue
                 if accDirUpperCase: newDir = newDir.upper()
                 newLine = newLine + singleSpaceString + newDir
                 # for-loop handles the arguement component
@@ -342,6 +346,7 @@ if __name__ == "__main__":
                 if debug:
                     print 'OpenACC Directive Dual with no arguement found'
                 newDir = dualDirDict[dualDir]
+                if newDir == emptyString: continue
                 if accDirUpperCase: newDir = newDir.upper()
                 if debug:
                     print dualDir + transitionArrow + newDir
@@ -352,6 +357,7 @@ if __name__ == "__main__":
                 totalDirsFound = totalDirsFound + 2
                 if debug: print 'OpenACC Directive Dual with an argument'
                 newDir = dualDirwargsDict[dualDir]
+                if newDir == emptyString: continue
                 if accDirUpperCase: newDir = newDir.upper()
                 newLine = newLine + singleSpaceString + newDir
                 # for-loop handles the arguement component
