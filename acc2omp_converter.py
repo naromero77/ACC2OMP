@@ -228,11 +228,6 @@ if __name__ == "__main__":
         dualDirwargsFound = False
         dirwargsFound = False
         for i, dir in enumDirs:
-            # Convert directive to lowercase for pattern matching purpose,
-            # later on the output line will be written out in the native
-            # capitalization of the source code (determined on a per line
-            # basis)
-            dir = dir.lower()
             # first iteration just put the OMP directive or continuation
             # version of it into a string and go to the next iteration
             if i == 0:
@@ -271,10 +266,13 @@ if __name__ == "__main__":
             # those. The maxsplit arguement to the split method in dirwards
             # is needed to identify arrays properly. We split *only* on the
             # first parenthesis from the left hand side.
+            #
+            # Note that currentDir and dualDir must be in lowercase for pattern
+            # matching purposes.
             dirwargs = dir.split('(', 1)
             lenDirwargs = len(dirwargs)
-            currentDir = dirwargs[0]
-            dualDir = prevdir + singleSpaceString + currentDir
+            currentDir = dirwargs[0].lower()
+            dualDir = prevdir.lower() + singleSpaceString + currentDir
 
             if lenDirwargs > 1: dirwargsFound = True  # Boolean unused for now
             if debug:
