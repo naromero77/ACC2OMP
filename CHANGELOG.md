@@ -2,7 +2,16 @@
 
 Notable changes to ACC2OMP are documented in this file
 
-## [0.2.1] - 2020-1-23
+## [0.2.2] - 2020-XX-YY
+
+Minor enhancements:
+- Support OpenACC present directive
+- More robust handling of directives that translates into nothing
+
+Bug fix:
+- Arguements to directives were being forced into lowercase
+
+## [0.2.1] - 2020-01-23
 
 Minor enhancements:
 - Original OpenACC directives can be maintained in output.
