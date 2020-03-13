@@ -27,6 +27,7 @@ ompDirContinue = '!$omp&'
 accDirContinue = '!$acc&'
 nextLineContinue = '&'
 
+emptyString = ''
 singleSpaceString = ' '
 transitionArrow = ' -> '
 backupExtString = '.bak'
@@ -34,11 +35,11 @@ backupExtString = '.bak'
 # directives without arguements
 singleDirDict = {
     'loop': 'parallel do',
-    'gang': '',
+    'gang': emptyString,
     'parallel': 'target teams distribute',
     'vector': 'simd',
     'routine': 'declare target',
-    'seq': '',
+    'seq': emptyString,
     'data': 'data',
     'end': 'end',
     'enter': 'target enter',
@@ -63,7 +64,8 @@ singleDirwargsDict = {
     'collapse': 'collapse(',
     'private': 'private(',
     'vector_length': 'simd simdlen(',
-    'num_gangs': 'num_teams('
+    'num_gangs': 'num_teams(',
+    'present': emptyString,
 }
 
 dualDirwargsDict = {
@@ -226,11 +228,6 @@ if __name__ == "__main__":
         dualDirwargsFound = False
         dirwargsFound = False
         for i, dir in enumDirs:
-            # Convert directive to lowercase for pattern matching purpose,
-            # later on the output line will be written out in the native
-            # capitalization of the source code (determined on a per line
-            # basis)
-            dir = dir.lower()
             # first iteration just put the OMP directive or continuation
             # version of it into a string and go to the next iteration
             if i == 0:
@@ -269,10 +266,13 @@ if __name__ == "__main__":
             # those. The maxsplit arguement to the split method in dirwards
             # is needed to identify arrays properly. We split *only* on the
             # first parenthesis from the left hand side.
+            #
+            # Note that currentDir and dualDir must be in lowercase for pattern
+            # matching purposes.
             dirwargs = dir.split('(', 1)
             lenDirwargs = len(dirwargs)
-            currentDir = dirwargs[0]
-            dualDir = prevdir + singleSpaceString + currentDir
+            currentDir = dirwargs[0].lower()
+            dualDir = prevdir.lower() + singleSpaceString + currentDir
 
             if lenDirwargs > 1: dirwargsFound = True  # Boolean unused for now
             if debug:
@@ -319,6 +319,7 @@ if __name__ == "__main__":
                 if debug:
                     print 'OpenACC Directive Single with no argument found'
                 newDir = singleDirDict[currentDir]
+                if newDir == emptyString: continue
                 if accDirUpperCase: newDir = newDir.upper()
                 if debug: print currentDir + transitionArrow + newDir
                 newLine = newLine + singleSpaceString + newDir
@@ -328,6 +329,7 @@ if __name__ == "__main__":
                 totalDirsFound = totalDirsFound + 1
                 if debug: print 'OpenACC Directive Single with argument found'
                 newDir = singleDirwargsDict[currentDir]
+                if newDir == emptyString: continue
                 if accDirUpperCase: newDir = newDir.upper()
                 newLine = newLine + singleSpaceString + newDir
                 # for-loop handles the arguement component
@@ -342,6 +344,7 @@ if __name__ == "__main__":
                 if debug:
                     print 'OpenACC Directive Dual with no arguement found'
                 newDir = dualDirDict[dualDir]
+                if newDir == emptyString: continue
                 if accDirUpperCase: newDir = newDir.upper()
                 if debug:
                     print dualDir + transitionArrow + newDir
@@ -352,6 +355,7 @@ if __name__ == "__main__":
                 totalDirsFound = totalDirsFound + 2
                 if debug: print 'OpenACC Directive Dual with an argument'
                 newDir = dualDirwargsDict[dualDir]
+                if newDir == emptyString: continue
                 if accDirUpperCase: newDir = newDir.upper()
                 newLine = newLine + singleSpaceString + newDir
                 # for-loop handles the arguement component
