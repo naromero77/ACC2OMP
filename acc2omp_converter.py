@@ -215,6 +215,7 @@ if __name__ == "__main__":
         # keywords among the different directive categories.
 
         # Counters which are only reset at each iteration of outer loop
+        # NOTE: If present, totalDirsFound will count nextLineContinue symbol
         dualDir = None
         totalDirsFound = 0
 
@@ -248,7 +249,7 @@ if __name__ == "__main__":
 
             # Special detection needed for line continuation
             if dir == nextLineContinue:
-                totalDirsFound = totalDirsFound - 1
+                totalDirsFound = totalDirsFound + 1
                 newLine = newLine + singleSpaceString + nextLineContinue
 
             # Additional logic would be necessary if examining
@@ -372,8 +373,10 @@ if __name__ == "__main__":
             # End of inner loop on `i`
 
         # On last Loop iteration, check that you were able to translate
-        # all directives. If you can't translate a directive, keep
-        # line AS IS and output original line containing OpenACC
+        # all directives. The minus one in the first conditional takes into
+        # account the initial `!$acc` or `!$acc&` which is not counted.
+        # If the directive cannot be translated, keep line AS IS and
+        # output original line containing OpenACC.
         if (totalDirsFound < (lenDirs - 1)):
             if debug:
                 print 'lenDirs=', lenDirs
