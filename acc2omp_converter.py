@@ -249,7 +249,7 @@ if __name__ == "__main__":
 
             # Special detection needed for line continuation
             if dir == nextLineContinue:
-                totalDirsFound = totalDirsFound - 1
+                totalDirsFound = totalDirsFound + 1
                 newLine = newLine + singleSpaceString + nextLineContinue
 
             # Additional logic would be necessary if examining
