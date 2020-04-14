@@ -95,7 +95,6 @@ def remove_extra_spaces(origString):
     # \w means any single letter, digit or underscore
     newString = re.sub('(\))(\w)', r'\1 \2', newString)
 
-    # return newString
     return newString
 
 
@@ -106,7 +105,6 @@ def add_space_after_commas(origString):
     # space after a comma
     newString = re.sub(',', ', ', origString)
 
-    # return newString
     return newString
 
 
