@@ -381,6 +381,8 @@ if __name__ == "__main__":
                 print 'OpenACC directive could not be translated.'
             newLine = origLine
         else:
+            if keepOpenACC:  # append original line into the buffer
+                entries.append(origLine)
             newLine = add_space_after_commas(newLine) + '\n'
 
         # Finally we add the new line into the buffer
