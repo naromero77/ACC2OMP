@@ -36,6 +36,7 @@ backupExtString = '.bak'
 singleDirDict = {
     'loop': 'parallel do',
     'gang': emptyString,
+    'independent': emptyString,
     'parallel': 'target teams distribute',
     'vector': 'simd',
     'routine': 'declare target',
@@ -44,11 +45,12 @@ singleDirDict = {
     'end': 'end',
     'enter': 'target enter',
     'exit': 'target exit',
+    'atomic': 'atomic',
+    'serial': 'target',
+    'declare': 'declare target',
 }
 
-dualDirDict = {
-    'atomic update': 'atomic update',
-}
+dualDirDict = {}
 
 # directives with arguements
 singleDirwargsDict = {
@@ -69,7 +71,8 @@ singleDirwargsDict = {
 }
 
 dualDirwargsDict = {
-    'update device': 'target update(',
+    'update host': 'target update from(',
+    'update device': 'target update to(',
 }
 
 
