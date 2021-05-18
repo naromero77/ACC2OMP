@@ -19,10 +19,10 @@ A number of diagnostic output is written to the standard out. It can be surpress
 
 # Known limitations
 - OpenACC -> OpenMP directive mapping must be explicitly available in a dictionary
-- OpenACC async is not handled properly because of fundamental differences between OpenACC and OpenMP
+- OpenACC async is not handled properly because of fundamental differences between OpenACC and OpenMP. 
 - Only handles Fortran
 - No unit tests
-- No enforcement of PEP8 formating on source code
+- No enforcement of PEP8 formating on source code via CI
 
 # Funding
 This research was supported by the Exascale Computing Project (17-SC-20-SC), a joint project of the U.S. Department of Energy’s

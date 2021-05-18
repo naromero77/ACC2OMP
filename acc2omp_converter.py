@@ -3,6 +3,17 @@
 # e-mail: naromer@anl.gov
 # Argonne National Laboratory
 
+# Python imports
+import fileinput
+import re
+from shutil import copyfile
+
+# Most common user configurable parameters
+# Set to True for debugging and development purposes
+debug = True
+# Set to True to retain OpenACC directives in output
+keepOpenACC = True
+
 # Lists, dicts, and strings to aid in translation of OpenACC to OpenMP
 # Note that the other way would be more difficult since OpenMP tends to
 # be more verbose than OpenACC.
@@ -10,37 +21,41 @@
 # In the variable names in the program, Dir stands for directive
 # not directory.
 
-import fileinput
-from shutil import copyfile
-
 ompDir = '!$omp'
 accDir = '!$acc'
 ompDirContinue = '!$omp&'
 accDirContinue = '!$acc&'
+nextLineContinue = '&'
 
+emptyString = ''
 singleSpaceString = ' '
 transitionArrow = ' -> '
 backupExtString = '.bak'
 
-# no arguements
+# directives without arguements
 singleDirDict = {
     'loop': 'parallel do',
-    'gang': '',
+    'gang': emptyString,
+    'independent': emptyString,
     'parallel': 'target teams distribute',
     'vector': 'simd',
     'routine': 'declare target',
-    'seq': '',
+    'seq': emptyString,
     'data': 'data',
+    'end': 'end',
     'enter': 'target enter',
     'exit': 'target exit',
+    'atomic': 'atomic',
+    'serial': 'target',
+    'declare': 'declare target',
 }
 
-dualDirDict = {
-    'atomic update': 'atomic update',
-}
+dualDirDict = {}
 
-# with arguements
+# directives with arguements
 singleDirwargsDict = {
+    'attach': 'map(to:',
+    'detach': 'map(from:',
     'copy': 'map(tofrom:',
     'copyin': 'map(to:',
     'copyout': 'map(from:',
@@ -51,15 +66,50 @@ singleDirwargsDict = {
     'collapse': 'collapse(',
     'private': 'private(',
     'vector_length': 'simd simdlen(',
-    'num_gangs': 'num_teams('
+    'num_gangs': 'num_teams(',
+    'present': emptyString,
 }
 
 dualDirwargsDict = {
-    'update device': 'target update(',
+    'update host': 'target update from(',
+    'update device': 'target update to(',
 }
 
-# Set to 1 for debugging and development purposes
-debug = 1
+
+def remove_extra_spaces(origString):
+    """
+    Converter needs extra spaces before and after commas and parenthesis
+    removed in order work properly.
+    """
+    # Space before and after a comma
+    newString = re.sub(' *, *', ',', origString)
+
+    # Space before and after left parenthesis
+    newString = re.sub(' *\( *', '(', newString)
+
+    # Space before and after right parenthesis
+    newString = re.sub(' *\) *', ')', newString)
+
+    # Add space back in for continuation symbol
+    newString = re.sub('\)&', ') &', newString)
+
+    # Add space back when newString is adjacent to another variable or
+    # directive
+    # \w means any single letter, digit or underscore
+    newString = re.sub('(\))(\w)', r'\1 \2', newString)
+
+    return newString
+
+
+def add_space_after_commas(origString):
+    """
+    Directives with arguements need spaces insert after commas.
+    """
+    # space after a comma
+    newString = re.sub(',', ', ', origString)
+
+    return newString
+
 
 if __name__ == "__main__":
     # This list will contain the output buffer in a line-by-line breakup
@@ -69,7 +119,14 @@ if __name__ == "__main__":
     lines = fileinput.input()
 
     for line in lines:
+        # Remove extraneous spaces, but we only use
+        # parsedLine for lines that actually contain directives
+        origLine = line
+        parsedLine = remove_extra_spaces(line)
+        line = parsedLine
+
         if debug:
+            print "extra spaces extracted below:"
             print line
 
         # Four cases to consider when parsing a line:
@@ -82,7 +139,7 @@ if __name__ == "__main__":
         if len(line) == 0:
             if debug:
                 print 'Carriage return only'
-            entries.append(line)
+            entries.append(origLine)
             continue
 
         # As long as the line is not empty (case #1), it can be
@@ -101,7 +158,7 @@ if __name__ == "__main__":
         if lenDirs == 0:
             if debug:
                 print 'Blank line'
-            entries.append(line)
+            entries.append(origLine)
             continue
 
         # Third case is a line that contains no directive
@@ -116,7 +173,7 @@ if __name__ == "__main__":
                 (dirs[0].lower() != accDirContinue)):
             if debug:
                     print 'No OpenACC directive on this line'
-            entries.append(line)
+            entries.append(origLine)
             continue
 
         # Fourth case contains some OpenACC directive
@@ -160,19 +217,19 @@ if __name__ == "__main__":
         # directives but we do pairs first because there is overlap between
         # keywords among the different directive categories.
 
-        # Booleans to keep track of what directive type has been found:
+        # Counters which are only reset at each iteration of outer loop
+        # NOTE: If present, totalDirsFound will count nextLineContinue symbol
         dualDir = None
+        totalDirsFound = 0
+
+        # Booleans to keep track of what directive type has been found
+        # Need to be reset at each iteration of inner loop
         singleDirFound = False
         singleDirwargsFound = False
         dualDirFound = False
         dualDirwargsFound = False
         dirwargsFound = False
         for i, dir in enumDirs:
-            # Convert directive to lowercase for pattern matching purpose,
-            # later on the output line will be written out in the native
-            # capitalization of the source code (determined on a per line
-            # basis)
-            dir = dir.lower()
             # first iteration just put the OMP directive or continuation
             # version of it into a string and go to the next iteration
             if i == 0:
@@ -180,12 +237,12 @@ if __name__ == "__main__":
                 if accDirUpperCase:
                     ompDir = ompDir.upper()
                     ompDirContinue = ompDirContinue.upper()
-                else: #  accDirLowerCase is True
+                else:  # accDirLowerCase is True
                     ompDir = ompDir.lower()
                     ompDirContinue = ompDirContinue.lower()
                 if accDirFound:
                     newLine = newLine + ompDir
-                else: #  accDirContinueFound is True
+                else:  # accDirContinueFound is True
                     newLine = newLine + ompDirContinue
                 continue
 
@@ -193,21 +250,31 @@ if __name__ == "__main__":
             if i == 1:
                 prevdir = dir
 
+            # Special detection needed for line continuation
+            if dir == nextLineContinue:
+                totalDirsFound = totalDirsFound + 1
+                newLine = newLine + singleSpaceString + nextLineContinue
+
+            # Additional logic would be necessary if examining
+            # triplets of directives
             # take adjacent directives and create new key
             # store previous two directives for next iteration
             # if i > 1:
-            #     dualDir = prevdir + ' ' + dir
-            #     prevprevdir = prevdir
+            #     dualDir = prevdir + singleSpaceString + currentDir
+            #     prevdrevdir = prevdir
             #    prevdir = dir
 
             # Some directives will have arguements, so we need to identify
             # those. The maxsplit arguement to the split method in dirwards
             # is needed to identify arrays properly. We split *only* on the
             # first parenthesis from the left hand side.
+            #
+            # Note that currentDir and dualDir must be in lowercase for pattern
+            # matching purposes.
             dirwargs = dir.split('(', 1)
             lenDirwargs = len(dirwargs)
-            currentDir = dirwargs[0]
-            dualDir = prevdir + ' ' + currentDir
+            currentDir = dirwargs[0].lower()
+            dualDir = prevdir.lower() + singleSpaceString + currentDir
 
             if lenDirwargs > 1: dirwargsFound = True  # Boolean unused for now
             if debug:
@@ -250,30 +317,36 @@ if __name__ == "__main__":
 
             # (single) directive with no arguements
             if singleDirFound:
+                totalDirsFound = totalDirsFound + 1
                 if debug:
                     print 'OpenACC Directive Single with no argument found'
                 newDir = singleDirDict[currentDir]
+                if newDir == emptyString: continue
                 if accDirUpperCase: newDir = newDir.upper()
                 if debug: print currentDir + transitionArrow + newDir
                 newLine = newLine + singleSpaceString + newDir
 
             # (single) directive with an arguement
             if (lenDirwargs > 1) and singleDirwargsFound:
+                totalDirsFound = totalDirsFound + 1
                 if debug: print 'OpenACC Directive Single with argument found'
                 newDir = singleDirwargsDict[currentDir]
+                if newDir == emptyString: continue
                 if accDirUpperCase: newDir = newDir.upper()
                 newLine = newLine + singleSpaceString + newDir
                 # for-loop handles the arguement component
                 for j in range(1, lenDirwargs):
                     newDir = dirwargs[j]
                     if debug: print currentDir + transitionArrow + newDir
-                    newLine = newLine + singleSpaceString + newDir
+                    newLine = newLine + newDir
 
             # (pair) directive with no arguement
             if dualDirFound:
+                totalDirsFound = totalDirsFound + 2
                 if debug:
                     print 'OpenACC Directive Dual with no arguement found'
                 newDir = dualDirDict[dualDir]
+                if newDir == emptyString: continue
                 if accDirUpperCase: newDir = newDir.upper()
                 if debug:
                     print dualDir + transitionArrow + newDir
@@ -281,15 +354,17 @@ if __name__ == "__main__":
 
             # (pair) directive with an arguement
             if (lenDirwargs > 1) and dualDirwargsFound:
+                totalDirsFound = totalDirsFound + 2
                 if debug: print 'OpenACC Directive Dual with an argument'
                 newDir = dualDirwargsDict[dualDir]
+                if newDir == emptyString: continue
                 if accDirUpperCase: newDir = newDir.upper()
                 newLine = newLine + singleSpaceString + newDir
                 # for-loop handles the arguement component
                 for j in range(1, lenDirwargs):
                     newDir = dirwargs[j]
                     if debug: print dualDir + transitionArrow + newDir
-                    newLine = newLine + singleSpaceString + newDir
+                    newLine = newLine + newDir
 
             # reset booleans for next iteration
             singleDirFound = False
@@ -298,9 +373,28 @@ if __name__ == "__main__":
             dualDirwargsFound = False
             dirwargsFound = False
 
+            # End of inner loop on `i`
+
+        # On last Loop iteration, check that you were able to translate
+        # all directives. The minus one in the first conditional takes into
+        # account the initial `!$acc` or `!$acc&` which is not counted.
+        # If the directive cannot be translated, keep line AS IS and
+        # output original line containing OpenACC.
+        if (totalDirsFound < (lenDirs - 1)):
+            if debug:
+                print 'lenDirs=', lenDirs
+                print 'totalDirsFound=', totalDirsFound
+                print 'OpenACC directive could not be translated.'
+            newLine = origLine
+        else:
+            if keepOpenACC:  # append original line into the buffer
+                entries.append(origLine)
+            newLine = add_space_after_commas(newLine) + '\n'
+
         # Finally we add the new line into the buffer
-        newLine = newLine + '\n'
         entries.append(newLine)
+
+        # End of outer loop on `line`
 
     # We intentionally wait until the entire file is read because
     # fileinput module will return None only after the entire file
