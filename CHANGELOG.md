@@ -2,7 +2,17 @@
 
 Notable changes to ACC2OMP are documented in this file
 
-## [0.2.2] - 2020-XX-YY
+## [0.2.3] - 2021-05-18
+
+Minor enhancements:
+- Support additional common OpenACC directives: atomic, serial, declare, update host/device
+- Improve internal code documentation
+
+Bug fix:
+- keepOpenACC codepath was not working
+- Issue with line continue symbols for multi-line directives 
+
+## [0.2.2] - 2020-03-10
 
 Minor enhancements:
 - Support OpenACC present directive
